@@ -9,3 +9,4 @@ Roadmap:
 - [ ] Draw a test map of the US using Python
 - [ ] Combine map and data to make heatmap
 - [ ] Use more data than just ILR tracker to get more historical strike trends
+- [ ] Number of actions by congressional district

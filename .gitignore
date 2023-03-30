@@ -3,3 +3,6 @@
 
 # python env
 env/
+
+# geckodriver output
+geckodriver.log
