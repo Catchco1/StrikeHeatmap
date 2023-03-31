@@ -10,6 +10,7 @@ driver = webdriver.Chrome(service=Service('/usr/local/bin/geckodriver'),
                           options=firefox_options)
 driver.get('https://striketracker.ilr.cornell.edu/')
 page_source = driver.page_source.encode("utf-8")
+driver.quit()
 
 soup = bs(page_source, 'html.parser')
 
@@ -33,5 +34,3 @@ for div in range(0, 10):
 
 for i in range(0, 10):
     print(laborActions[i])
-
-driver.quit()
