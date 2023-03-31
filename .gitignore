@@ -3,3 +3,6 @@ env/
 
 # geckodriver output
 geckodriver.log
+
+# work certs
+cert2.pem
