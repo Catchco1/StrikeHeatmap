@@ -21,19 +21,34 @@ for div in range(0, len(laborActionDivs)):
     try:
         divSplit = laborActionDivs[div].get_text(separator="|", strip=True).split('|')
         index = [x for x, e in enumerate(divSplit) if "Employer" in e]
-        employer = divSplit[index[0]+1][2:]
+        if index:
+            employer = divSplit[index[0]+1][2:]
+        else:
+            employer = None
         index = [x for x, e in enumerate(divSplit) if "Labor Organization" in e]
-        laborOrg = divSplit[index[0]+1][2:]
+        if index:
+            laborOrg = divSplit[index[0]+1][2:]
+        else:
+            laborOrg = None
         index = [x for x, e in enumerate(divSplit) if "Start Date" in e]
-        dateFrom = divSplit[index[0]+1][2:]
+        if index:
+            dateFrom = divSplit[index[0]+1][2:]
+        else:
+            dateFrom = None
         index = [x for x, e in enumerate(divSplit) if "End Date" in e]
-        dateTo = divSplit[index[0]+1][2:]
+        if index:
+            dateTo = divSplit[index[0]+1][2:]
+        else:
+            dateTo = None
         index = [x for x, e in enumerate(divSplit) if "State" in e]
-        state = divSplit[index[0]+1][2:]
+        if index:
+            state = divSplit[index[0]+1][2:].strip()
+        else:
+            state = None
         newAction = LaborAction(dateFrom, dateTo, employer, laborOrg, state)
         laborActions.append(newAction)
     except:
-        print(index)
+        print(laborActionDivs[div].get_text(separator="|", strip=True).split('|'))
 
 for i in range(0, 10):
-    print(laborActions[i])
+    print(laborActions[i].State)
