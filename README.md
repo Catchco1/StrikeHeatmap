@@ -7,7 +7,7 @@ This will originally use information from the Cornell University ILR Labor Actio
 Additionally, using data from the historical FMCS archive now located [here](https://github.com/labordata/fmcs-work-stoppage). This data goes up until 2020 when FMCS stopped posting it publicly. 
 
 Roadmap:
-- [ ] Ingest data from ILR tracker
+- [x] Ingest data from ILR tracker
 - [ ] Ingest data from FMCS csv
 - [ ] Draw a test map of the US using Python
 - [ ] Combine map and data to make heatmap
