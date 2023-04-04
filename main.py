@@ -10,57 +10,57 @@ import pygris
 from pygris.utils import shift_geometry
 
 state_tracker = {
-    "ALABAMA": 0,
-    "ALASKA": 0,
-    "ARIZONA": 0,
-    "ARKANSAS": 0,
-    "CALIFORNIA": 0,
-    "COLORADO": 0,
-    "CONNECTICUT": 0,
-    "DELAWARE": 0,
-    "FLORIDA": 0,
-    "GEORGIA": 0,
-    "HAWAII": 0,
-    "IDAHO": 0,
-    "ILLINOIS": 0,
-    "INDIANA": 0,
-    "IOWA": 0,
-    "KANSAS": 0,
-    "KENTUCKY": 0,
-    "LOUISIANA": 0,
-    "MAINE": 0,
-    "MARYLAND": 0,
-    "MASSACHUSETTS": 0,
-    "MICHIGAN": 0,
-    "MINNESOTA": 0,
-    "MISSISSIPPI": 0,
-    "MISSOURI": 0,
-    "MONTANA": 0,
-    "NEBRASKA": 0,
-    "NEVADA": 0,
-    "NEW HAMPSHIRE": 0,
-    "NEW JERSEY": 0,
-    "NEW MEXICO": 0,
-    "NEW YORK": 0,
-    "NORTH CAROLINA": 0,
-    "NORTH DAKOTA": 0,
-    "OHIO": 0,
-    "OKLAHOMA": 0,
-    "OREGON": 0,
-    "PENNSYLVANIA": 0,
-    "RHODE ISLAND": 0,
-    "SOUTH CAROLINA": 0,
-    "SOUTH DAKOTA": 0,
-    "TENNESSEE": 0,
-    "TEXAS": 0,
-    "UTAH": 0,
-    "VERMONT": 0,
-    "VIRGINIA": 0,
-    "WASHINGTON": 0,
-    "WEST VIRGINIA": 0,
-    "WISCONSIN": 0,
-    "WYOMING": 0,
-    "DISTRICT OF COLUMBIA": 0,
+    "Alabama": 0,
+    "Alaska": 0,
+    "Arizona": 0,
+    "Arkansas": 0,
+    "California": 0,
+    "Colorado": 0,
+    "Connecticut": 0,
+    "Delaware": 0,
+    "Florida": 0,
+    "Georgia": 0,
+    "Hawaii": 0,
+    "Idaho": 0,
+    "Illinois": 0,
+    "Indiana": 0,
+    "Iowa": 0,
+    "Kansas": 0,
+    "Kentucky": 0,
+    "Louisiana": 0,
+    "Maine": 0,
+    "Maryland": 0,
+    "Massachusetts": 0,
+    "Michigan": 0,
+    "Minnesota": 0,
+    "Mississippi": 0,
+    "Missouri": 0,
+    "Montana": 0,
+    "Nebraska": 0,
+    "Nevada": 0,
+    "New Hampshire": 0,
+    "New Jersey": 0,
+    "New Mexico": 0,
+    "New York": 0,
+    "North Carolina": 0,
+    "North Dakota": 0,
+    "Ohio": 0,
+    "Oklahoma": 0,
+    "Oregon": 0,
+    "Pennsylvania": 0,
+    "Rhode Island": 0,
+    "South Carolina": 0,
+    "South Dakota": 0,
+    "Tennessee": 0,
+    "Texas": 0,
+    "Utah": 0,
+    "Vermont": 0,
+    "Virginia": 0,
+    "Washington": 0,
+    "West Virginia": 0,
+    "Wisconsin": 0,
+    "Wyoming": 0,
+    "District of Columbia": 0,
 }
 
 # Selenium setup
@@ -115,14 +115,15 @@ for div in range(0, len(laborActionDivs)):
 for action in laborActions:
     if action.State_Name in state_tracker:
         state_tracker[action.State_Name] += 1
-
 labor_data = pd.DataFrame(state_tracker.items(), columns=['State_Name', 'Strikes'])
 
 # Setup link between map and data
 us_map = pygris.states(cb = True, resolution = "20m")
 us_rescaled = shift_geometry(us_map)
+print(us_rescaled)
 
-map_and_data = us_map.merge(labor_data, on="State_Name")
+map_and_data = us_rescaled.merge(labor_data, left_on="NAME", right_on="State_Name")
+print(map_and_data)
 
 # Drawing the map!
 fix, ax = plt.subplots(1, figsize=(12, 8))
