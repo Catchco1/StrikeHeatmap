@@ -9,7 +9,9 @@ Additionally, using data from the historical FMCS archive now located [here](htt
 Roadmap:
 - [x] Ingest data from ILR tracker
 - [ ] Ingest data from FMCS csv
-- [ ] Draw a test map of the US using Python
-- [ ] Combine map and data to make heatmap
+- [x] Draw a test map of the US using Python
+- [x] Combine map and data to make heatmap
+- [ ] Make gif out of maps per month
 - [ ] Use more data than just ILR tracker to get more historical strike trends
 - [ ] Number of actions by congressional district
+- [ ] Setup Github Actions to run the scripts weekly to produce new gif
