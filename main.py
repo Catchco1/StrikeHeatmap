@@ -8,6 +8,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import pygris
 from pygris.utils import shift_geometry
+from datetime import datetime
+import imageio
 
 state_tracker = {
     "Alabama": 0,
@@ -79,55 +81,75 @@ soup = bs(page_source, 'html.parser')
 laborActionDivs = soup.find_all("div", {"class": "tab-content"})
 laborActions = []
 for div in range(0, len(laborActionDivs)):
-    try:
-        divSplit = laborActionDivs[div].get_text(separator="|", strip=True).split('|')
-        index = [x for x, e in enumerate(divSplit) if "Employer" in e]
-        if index:
-            employer = divSplit[index[0]+1][2:]
-        else:
-            employer = None
-        index = [x for x, e in enumerate(divSplit) if "Labor Organization" in e]
-        if index:
-            laborOrg = divSplit[index[0]+1][2:]
-        else:
-            laborOrg = None
-        index = [x for x, e in enumerate(divSplit) if "Start Date" in e]
-        if index:
-            dateFrom = divSplit[index[0]+1][2:]
-        else:
-            dateFrom = None
-        index = [x for x, e in enumerate(divSplit) if "End Date" in e]
-        if index:
-            dateTo = divSplit[index[0]+1][2:]
-        else:
-            dateTo = None
-        index = [x for x, e in enumerate(divSplit) if "State" in e]
-        if index:
-            state = divSplit[index[0]+1][2:].strip()
-        else:
-            state = None
-        newAction = LaborAction(dateFrom, dateTo, employer, laborOrg, state)
-        laborActions.append(newAction)
-    except:
-        print(laborActionDivs[div].get_text(separator="|", strip=True).split('|'))
+    divSplit = laborActionDivs[div].get_text(separator="|", strip=True).split('|')
+    index = [x for x, e in enumerate(divSplit) if "Employer" in e]
+    if index:
+        employer = divSplit[index[0]+1][2:]
+    else:
+        employer = None
+    index = [x for x, e in enumerate(divSplit) if "Labor Organization" in e]
+    if index:
+        laborOrg = divSplit[index[0]+1][2:]
+    else:
+        laborOrg = None
+    index = [x for x, e in enumerate(divSplit) if "Start Date" in e]
+    if index:
+        dateFrom = datetime.strptime(divSplit[index[0]+1][2:], '%m/%d/%Y')
+    else:
+        dateFrom = None
+    index = [x for x, e in enumerate(divSplit) if "End Date" in e]
+    if index:
+        dateTo = datetime.strptime(divSplit[index[0]+1][2:], '%m/%d/%Y')
+    else:
+        dateTo = None
+    index = [x for x, e in enumerate(divSplit) if "State" in e]
+    if index:
+        state = divSplit[index[0]+1][2:].strip()
+    else:
+        state = None
+    newAction = LaborAction(dateFrom, dateTo, employer, laborOrg, state)
+    laborActions.append(newAction)
 
-# Count strikes for one month
-for action in laborActions:
-    if action.State_Name in state_tracker:
-        state_tracker[action.State_Name] += 1
-labor_data = pd.DataFrame(state_tracker.items(), columns=['State_Name', 'Strikes'])
-
-# Setup link between map and data
+# Setup base map
 us_map = pygris.states(cb = True, resolution = "20m")
 us_rescaled = shift_geometry(us_map)
-print(us_rescaled)
 
-map_and_data = us_rescaled.merge(labor_data, left_on="NAME", right_on="State_Name")
-print(map_and_data)
+# Get the month range
+if laborActions[0].dateTo is None:
+    month_list = pd.date_range(start=laborActions[len(laborActions)-1].dateFrom.date(), end=laborActions[0].dateFrom.date(), freq='M')
+else:
+    month_list = pd.date_range(start=laborActions[len(laborActions)-1].dateFrom.date(), end=laborActions[0].dateTo.date(), freq='M')
+print(month_list)
 
-# Drawing the map!
-fix, ax = plt.subplots(1, figsize=(12, 8))
-plt.xticks(rotation=90)
+# Count strikes for one month
+frames = []
+for month in month_list:
+    state_tracker = dict.fromkeys(state_tracker, 0)
+    for action in laborActions:
+        if action.dateTo is None:
+            if action.dateFrom.month == month.month and action.dateFrom.year == month.year and action.State_Name in state_tracker:
+                state_tracker[action.State_Name] += 1
+        else:
+            if action.dateFrom.month <= month.month <= action.dateTo.month and action.dateFrom.year <= month.year <= action.dateTo.year and action.State_Name in state_tracker:
+                state_tracker[action.State_Name] += 1
+    labor_data = pd.DataFrame(state_tracker.items(), columns=['State_Name', 'Strikes'])
+    print(labor_data)
 
-map_and_data.plot(column="Strikes", cmap="Reds", linewidth=0.4, ax=ax, edgecolor=".4")
-plt.savefig("test.png")
+    # Setup link between map and data
+    map_and_data = us_rescaled.merge(labor_data, left_on="NAME", right_on="State_Name")
+
+    # Drawing the map!
+    fix, ax = plt.subplots(1, figsize=(12, 8))
+    plt.xticks(rotation=90)
+
+    map_and_data.plot(column="Strikes", cmap="Reds", linewidth=0.4, ax=ax, edgecolor=".4")
+    plt.title("Heatmap of strikes per state per month\nCurrent Month: " + str(month.month) + "/" + str(month.year))
+    plt.savefig(f"imgs/test_{month.month}_{month.year}.png")
+    plt.close()
+
+    # Save the GIF frames
+    image = imageio.v2.imread(f'imgs/test_{month.month}_{month.year}.png')
+    frames.append(image)
+
+# Combine frames to make final GIF
+imageio.mimsave('./strikes.gif', frames, fps = 1, loop = 1)
