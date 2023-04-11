@@ -144,12 +144,16 @@ for index, state_tracker in enumerate(stateDicts):
     map_and_data = us_rescaled.merge(labor_data, left_on="NAME", right_on="State_Name")
 
     # Drawing the map!
-    fix, ax = plt.subplots(1, figsize=(12, 8))
-    plt.xticks(rotation=90)
+    fig, ax = plt.subplots(1, figsize=(12, 8))
+    plt.xticks([])
+    plt.yticks([])
 
     # For testing uncomment the following line to print number of strikes on each state
     map_and_data.apply(lambda x: ax.annotate(text=x.Strikes, xy=x.geometry.centroid.coords[0], ha='center', fontsize=10),axis=1)
     map_and_data.plot(column="Strikes", cmap="Reds", linewidth=0.4, ax=ax, edgecolor=".4", vmax=maxStrikes)
+    bar_info = plt.cm.ScalarMappable(cmap="Reds", norm=plt.Normalize(vmin=0, vmax=maxStrikes))
+    bar_info._A = []
+    cbar = fig.colorbar(bar_info, ax=ax, shrink=0.75)
     plt.title("Heatmap of strikes per state per month\nCurrent Month: " + str(month_list[index].month) + "/" + str(month_list[index].year))
     plt.savefig(f"imgs/{month.year}_{month.month}.png")
     plt.close()
