@@ -102,7 +102,7 @@ for div in range(0, len(laborActionDivs)):
         dateTo = datetime.strptime(divSplit[index[0]+1][2:], '%m/%d/%Y')
     else:
         dateTo = None
-    index = [x for x, e in enumerate(divSplit) if "State" in e]
+    index = [x for x, e in enumerate(divSplit) if "State" == e]
     if index:
         state = divSplit[index[0]+1][2:].strip()
     else:
@@ -116,10 +116,9 @@ us_rescaled = shift_geometry(us_map)
 
 # Get the month range
 if laborActions[0].dateTo is None:
-    month_list = pd.date_range(start=laborActions[len(laborActions)-1].dateFrom.date(), end=laborActions[0].dateFrom.date(), freq='M')
+    month_list = pd.date_range(start=laborActions[len(laborActions)-1].dateFrom.date(), end=laborActions[0].dateFrom.date(), freq='M').union([laborActions[len(laborActions)-1].dateFrom.date(), laborActions[0].dateFrom.date()])
 else:
-    month_list = pd.date_range(start=laborActions[len(laborActions)-1].dateFrom.date(), end=laborActions[0].dateTo.date(), freq='M')
-print(month_list)
+    month_list = pd.date_range(start=laborActions[len(laborActions)-1].dateFrom.date(), end=laborActions[0].dateTo.date(), freq='M').union([laborActions[len(laborActions)-1].dateFrom.date(), laborActions[0].dateTo.date()])
 
 # Count strikes for one month
 frames = []
@@ -133,7 +132,6 @@ for month in month_list:
             if action.dateFrom.month <= month.month <= action.dateTo.month and action.dateFrom.year <= month.year <= action.dateTo.year and action.State_Name in state_tracker:
                 state_tracker[action.State_Name] += 1
     labor_data = pd.DataFrame(state_tracker.items(), columns=['State_Name', 'Strikes'])
-    print(labor_data)
 
     # Setup link between map and data
     map_and_data = us_rescaled.merge(labor_data, left_on="NAME", right_on="State_Name")
@@ -142,13 +140,15 @@ for month in month_list:
     fix, ax = plt.subplots(1, figsize=(12, 8))
     plt.xticks(rotation=90)
 
+    # For testing uncomment the following line to print number of strikes on each state
+    # map_and_data.apply(lambda x: ax.annotate(text=x.Strikes, xy=x.geometry.centroid.coords[0], ha='center', fontsize=10),axis=1)
     map_and_data.plot(column="Strikes", cmap="Reds", linewidth=0.4, ax=ax, edgecolor=".4")
     plt.title("Heatmap of strikes per state per month\nCurrent Month: " + str(month.month) + "/" + str(month.year))
-    plt.savefig(f"imgs/test_{month.month}_{month.year}.png")
+    plt.savefig(f"imgs/{month.year}_{month.month}.png")
     plt.close()
 
     # Save the GIF frames
-    image = imageio.v2.imread(f'imgs/test_{month.month}_{month.year}.png')
+    image = imageio.v2.imread(f'imgs/{month.year}_{month.month}.png')
     frames.append(image)
 
 # Combine frames to make final GIF
