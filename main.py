@@ -122,6 +122,8 @@ else:
 
 # Count strikes for one month
 frames = []
+stateDicts = []
+maxStrikes = 0
 for month in month_list:
     state_tracker = dict.fromkeys(state_tracker, 0)
     for action in laborActions:
@@ -131,6 +133,11 @@ for month in month_list:
         else:
             if action.dateFrom.month <= month.month <= action.dateTo.month and action.dateFrom.year <= month.year <= action.dateTo.year and action.State_Name in state_tracker:
                 state_tracker[action.State_Name] += 1
+    if max(state_tracker.values()) > maxStrikes:
+        maxStrikes = max(state_tracker.values())
+    stateDicts.append(state_tracker)
+
+for index, state_tracker in enumerate(stateDicts):
     labor_data = pd.DataFrame(state_tracker.items(), columns=['State_Name', 'Strikes'])
 
     # Setup link between map and data
@@ -141,9 +148,9 @@ for month in month_list:
     plt.xticks(rotation=90)
 
     # For testing uncomment the following line to print number of strikes on each state
-    # map_and_data.apply(lambda x: ax.annotate(text=x.Strikes, xy=x.geometry.centroid.coords[0], ha='center', fontsize=10),axis=1)
-    map_and_data.plot(column="Strikes", cmap="Reds", linewidth=0.4, ax=ax, edgecolor=".4")
-    plt.title("Heatmap of strikes per state per month\nCurrent Month: " + str(month.month) + "/" + str(month.year))
+    map_and_data.apply(lambda x: ax.annotate(text=x.Strikes, xy=x.geometry.centroid.coords[0], ha='center', fontsize=10),axis=1)
+    map_and_data.plot(column="Strikes", cmap="Reds", linewidth=0.4, ax=ax, edgecolor=".4", vmax=maxStrikes)
+    plt.title("Heatmap of strikes per state per month\nCurrent Month: " + str(month_list[index].month) + "/" + str(month_list[index].year))
     plt.savefig(f"imgs/{month.year}_{month.month}.png")
     plt.close()
 
