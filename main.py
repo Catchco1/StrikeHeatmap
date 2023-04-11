@@ -159,4 +159,4 @@ for index, state_tracker in enumerate(stateDicts):
     frames.append(image)
 
 # Combine frames to make final GIF
-imageio.mimsave('./strikes.gif', frames, fps = 1, loop = 1)
+imageio.mimsave('./strikes.gif', frames, fps = 1, loop = 0)
